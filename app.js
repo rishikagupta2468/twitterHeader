@@ -27,13 +27,13 @@ async function youtubeThumbnail() {
     cloudinary.v2.search.expression(
         'folder:youtube/*'
     ).max_results(1).execute().then(result => {
-        processImage(result.resources[0].url, 'thumbnail.png', false, { width: 320, height: 180 })
+        processImage(result.resources[0].url, 'thumbnail.png', false, { width: 350, height: 200 })
     });
 }
 
 async function saveImage(follower) {
     let fileName = `${follower.screen_name}.png`;
-    await processImage(follower.profile_image_url, fileName, true, { width: 50, height: 50 });
+    await processImage(follower.profile_image_url, fileName, true, { width: 60, height: 60 });
 }
 async function saveImageAndData(followers) {
     let index = 0;
@@ -43,8 +43,8 @@ async function saveImageAndData(followers) {
         await saveImage(follower)
         const follower_avatar = {
             input: fileName,
-            top: 130,
-            left: parseInt(`${120 + 60 * index}`),
+            top: 150,
+            left: parseInt(`${110 + 65 * index}`),
         };
         image_data.push(follower_avatar);
         index++;
@@ -62,7 +62,7 @@ async function processImage(url, image_path, isUserImage, resizeData) {
                 new Promise((resolve) => {
                     if (isUserImage == true) {
                         const rounded_corners = new Buffer.from(
-                            '<svg><rect x="0" y="0" width="50" height="50" rx="50" ry="50"/></svg>');
+                            '<svg><rect x="0" y="0" width="60" height="60" rx="50" ry="50"/></svg>');
                         resolve(
                             sharp(response.data)
                                 .resize(resizeData.width, resizeData.height)
@@ -93,9 +93,10 @@ async function processImage(url, image_path, isUserImage, resizeData) {
 
 async function drawImage(image_data) {
     try {
-        const hour = new Date().getHours();
+        const hour = new Date().getHours() - 10;
         const theme = ["Morning.png", "Afternoon.png", "Evening.png", "Night.png"];
         let twitterFile = theme[3];
+        console.log(hour);
 
         console.log(image_data);
         if (hour < 12 && hour > 6) twitterFile = theme[0];
@@ -117,14 +118,14 @@ async function uploadBanner(image_data) {
         const base64Banner = fs.readFileSync("twitterBanner.png", {
             encoding: "base64",
         });
-        await twitterClient.accountsAndUsers.accountUpdateProfileBanner({banner: base64Banner}).then(() => {
+        await twitterClient.accountsAndUsers.accountUpdateProfileBanner({ banner: base64Banner }).then(() => {
             deleteFiles(image_data);
         });
     }
 
-catch(err) {
-    console.log("error");
-}
+    catch (err) {
+        console.log("error");
+    }
 }
 
 async function deleteFiles(files) {
@@ -141,10 +142,10 @@ async function deleteFiles(files) {
 
 
 async function getFollowers() {
-    const params = { 
-        screen_name: 'rishika5000', 
-        count: 5 
-     }
+    const params = {
+        screen_name: 'rishika5000',
+        count: 5
+    }
     await twitterClient.accountsAndUsers.followersList(params).then((followers) => {
         saveImageAndData(followers).then((image_data) => {
             youtubeThumbnail().then(() => {
