@@ -163,7 +163,7 @@ async function getFollowers() {
 
 getFollowers();
 setInterval(() => {
-    get_followers();
+    getFollowers();
 }, 60000);
 
 http
