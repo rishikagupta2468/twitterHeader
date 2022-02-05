@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import sharp from 'sharp';
 import cloudinary from 'cloudinary';
 import client from "twitter-api-client";
+import http from 'http';
 dotenv.config();
 
 //****************KEYS******************* //
@@ -163,3 +164,8 @@ setInterval(() => {
     get_followers();
 }, 60000);
 
+http
+.createServer(function (req, res) {
+    res.send("it is running\n");
+})
+.listen(process.env.PORT || 5000);
