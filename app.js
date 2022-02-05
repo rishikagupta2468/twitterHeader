@@ -93,12 +93,8 @@ async function processImage(url, image_path, isUserImage, resizeData) {
 
 async function drawImage(image_data) {
     try {
-<<<<<<< HEAD
-        const hour = new Date().getHours() - 10;
-=======
         //+10 to convert US timezone to IST
         const hour = new Date().getHours() + 10;
->>>>>>> 720ebad34962821c16bb6c458f334d241594a063
         const theme = ["Morning.png", "Afternoon.png", "Evening.png", "Night.png"];
         let twitterFile = theme[3];
         console.log(hour);
