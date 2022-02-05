@@ -1,0 +1,22 @@
+{
+  "name": "twitterbanner",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.25.0",
+    "cloudinary": "^1.28.1",
+    "dotenv": "^14.3.2",
+    "fs": "0.0.1-security",
+    "http": "0.0.1-security",
+    "sharp": "^0.29.3",
+    "twitter-api-client": "^1.5.1"
+  }
+}
