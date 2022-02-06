@@ -29,7 +29,7 @@ async function youtubeThumbnail() {
     await cloudinary.v2.search.expression(
         'folder:youtube/*'
     ).max_results(1).execute().then(result => {
-        processImage(result.resources[0].url, 'banner/thumbnail.png', false, { width: 350, height: 200 });
+        processImage(result.resources[0].url, 'thumbnail.png', false, { width: 350, height: 200 });
     });
 }
 
@@ -164,7 +164,7 @@ async function getFollowers() {
         saveImageAndData(followers).then((image_data) => {
             youtubeThumbnail().then(() => {
                 image_data.push({
-                    input: 'banner/thumbnail.png',
+                    input: 'thumbnail.png',
                     top: 200,
                     left: 1100,
                 });
