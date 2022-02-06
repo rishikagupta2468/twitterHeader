@@ -29,7 +29,6 @@ async function youtubeThumbnail() {
     await cloudinary.v2.search.expression(
         'folder:youtube/*'
     ).max_results(1).execute().then(result => {
-        fs.unlinkSync("thumbnail.png");
         processImage(result.resources[0].url, 'thumbnail.png', false, { width: 350, height: 200 });
     });
 }
@@ -118,9 +117,12 @@ async function drawImage(image_data) {
         else if (hour < 18 && hour >= 12) twitterFile = theme[1];
         else if (hour < 22 && hour >= 18) twitterFile = theme[2];
         else if (hour <= 24 || hour <= 6) twitterFile = theme[3];
-        await sharp("banner/" + twitterFile)
-            .composite(image_data)
-            .toFile("twitterBanner.png")
+        new Promise((resolve) => {
+            resolve( sharp("banner/" + twitterFile)
+                .composite(image_data)
+                .toFile("twitterBanner.png")
+            );
+        })
     } catch (error) {
         console.log("Catch" + error);
     }
@@ -146,7 +148,7 @@ async function uploadBanner() {
 async function deleteFiles(files) {
     try {
         files.forEach((file) => {
-            if (file.input.includes(".png") && !file.input.includes("thumbnail")) {
+            if (file.input.includes(".png")) {
                 fs.unlinkSync(file.input);
             }
         });
