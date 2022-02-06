@@ -93,8 +93,7 @@ async function processImage(url, image_path, isUserImage, resizeData) {
 
 async function drawImage(image_data) {
     try {
-        //+10 to convert US timezone to IST
-        const hour = new Date().getHours() + 10;
+        const hour = new Date().getHours();
         const theme = ["Morning.png", "Afternoon.png", "Evening.png", "Night.png"];
         let twitterFile = theme[3];
         console.log(hour);
@@ -106,9 +105,10 @@ async function drawImage(image_data) {
         else if (hour <= 24 || hour <= 6) twitterFile = theme[3];
         await sharp("banner/" + twitterFile)
             .composite(image_data)
-            .toFile("twitterBanner.png");
-
-        uploadBanner(image_data);
+            .toFile("twitterBanner.png")
+            .then(() => {
+                uploadBanner(image_data);
+            });
     } catch (error) {
         console.log("Catch" + error);
     }
@@ -163,7 +163,7 @@ async function getFollowers() {
 
 getFollowers();
 setInterval(() => {
-    get_followers();
+    getFollowers();
 }, 60000);
 
 http
