@@ -15,6 +15,7 @@
     "axios": "^0.25.0",
     "cloudinary": "^1.28.1",
     "dotenv": "^14.3.2",
+    "express": "^4.17.2",
     "fs": "0.0.1-security",
     "sharp": "^0.29.3",
     "twitter-api-client": "^1.5.1"
