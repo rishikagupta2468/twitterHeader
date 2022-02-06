@@ -29,6 +29,7 @@ async function youtubeThumbnail() {
     await cloudinary.v2.search.expression(
         'folder:youtube/*'
     ).max_results(1).execute().then(result => {
+        fs.unlinkSync("thumbnail.png");
         processImage(result.resources[0].url, 'thumbnail.png', false, { width: 350, height: 200 });
     });
 }
