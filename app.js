@@ -4,10 +4,7 @@ import dotenv from 'dotenv';
 import sharp from 'sharp';
 import cloudinary from 'cloudinary';
 import client from "twitter-api-client";
-import express from 'express';
-const port = process.env.PORT || 3000;
 dotenv.config();
-const app = express();
 
 //****************KEYS******************* //
 cloudinary.config({
@@ -29,7 +26,7 @@ async function youtubeThumbnail() {
     await cloudinary.v2.search.expression(
         'folder:youtube/*'
     ).max_results(1).execute().then(result => {
-        processImage(result.resources[0].url, 'thumbnail.png', false, { width: 350, height: 200 });
+        processImage(result.resources[0].url, 'banner/thumbnail.png', false, { width: 350, height: 200 });
     });
 }
 
@@ -39,26 +36,31 @@ async function saveImage(follower) {
 }
 async function saveImageAndData(followers) {
     // console.log(followers);
-    let index = 0;
-    const image_data = [];
-    for (let follower of followers.users) {
-        let fileName = `${follower.screen_name}.png`;
-        await saveImage(follower).then(() => {
-            if (fs.existsSync(fileName)) {
-                const follower_avatar = {
-                    input: fileName,
-                    top: 150,
-                    left: parseInt(`${110 + 65 * index}`),
-                };
-                image_data.push(follower_avatar);
-                index++;
+    try {
+        let index = 0;
+        const image_data = [];
+        for (let follower of followers.users) {
+            let fileName = `${follower.screen_name}.png`;
+            await saveImage(follower).then(() => {
+                if (fs.existsSync(fileName)) {
+                    const follower_avatar = {
+                        input: fileName,
+                        top: 150,
+                        left: parseInt(`${110 + 65 * index}`),
+                    };
+                    image_data.push(follower_avatar);
+                    index++;
+                }
+            });
+            if (image_data.length == 5) {
+                break;
             }
-        });
-        if (image_data.length == 5) {
-            break;
         }
+        return image_data;
     }
-    return image_data;
+    catch (err) {
+        console.log(err);
+    }
 }
 
 async function processImage(url, image_path, isUserImage, resizeData) {
@@ -66,33 +68,32 @@ async function processImage(url, image_path, isUserImage, resizeData) {
         await axios({
             url,
             responseType: "arraybuffer",
-        }).then(
-            (response) =>
-                new Promise((resolve) => {
-                    if (isUserImage == true) {
-                        const rounded_corners = new Buffer.from(
-                            '<svg><rect x="0" y="0" width="60" height="60" rx="50" ry="50"/></svg>');
-                        resolve(
-                            sharp(response.data)
-                                .resize(resizeData.width, resizeData.height)
-                                .composite([
-                                    {
-                                        input: rounded_corners,
-                                        blend: "dest-in",
-                                    },
-                                ])
-                                .png()
-                                .toFile(image_path)
-                        );
-                    } else {
-                        resolve(
-                            sharp(response.data)
-                                .resize(resizeData.width, resizeData.height)
-                                .png()
-                                .toFile(image_path)
-                        );
-                    }
-                })
+        }).then((response) =>
+            new Promise((resolve) => {
+                if (isUserImage == true) {
+                    const rounded_corners = new Buffer.from(
+                        '<svg><rect x="0" y="0" width="60" height="60" rx="50" ry="50"/></svg>');
+                    resolve(
+                        sharp(response.data)
+                            .resize(resizeData.width, resizeData.height)
+                            .composite([
+                                {
+                                    input: rounded_corners,
+                                    blend: "dest-in",
+                                },
+                            ])
+                            .png()
+                            .toFile(image_path)
+                    );
+                } else {
+                    resolve(
+                        sharp(response.data)
+                            .resize(resizeData.width, resizeData.height)
+                            .png()
+                            .toFile(image_path)
+                    );
+                }
+            })
         )
             .catch((err) => {
                 console.log("error in getting profile url");
@@ -107,10 +108,8 @@ async function drawImage(image_data) {
     try {
         const hour = new Date().getHours() + 6;
         const theme = ["Morning.png", "Afternoon.png", "Evening.png", "Night.png"];
-        let twitterFile = theme[3];
+        let twitterFile = theme[0];
         console.log(hour);
-
-        console.log(image_data);
         if (hour < 12 && hour > 6) twitterFile = theme[0];
         else if (hour < 18 && hour >= 12) twitterFile = theme[1];
         else if (hour < 22 && hour >= 18) twitterFile = theme[2];
@@ -123,14 +122,12 @@ async function drawImage(image_data) {
     }
 }
 
-async function uploadBanner(image_data) {
+async function uploadBanner() {
     try {
         const base64Banner = fs.readFileSync("twitterBanner.png", {
             encoding: "base64",
         });
-        await twitterClient.accountsAndUsers.accountUpdateProfileBanner({ banner: base64Banner }).then(() => {
-            deleteFiles(image_data);
-        });
+        await twitterClient.accountsAndUsers.accountUpdateProfileBanner({ banner: base64Banner });
     }
 
     catch (err) {
@@ -138,16 +135,14 @@ async function uploadBanner(image_data) {
         const base64Banner = fs.readFileSync("banner/Default.png", {
             encoding: "base64",
         });
-        await twitterClient.accountsAndUsers.accountUpdateProfileBanner({ banner: base64Banner }).then(() => {
-            deleteFiles(image_data);
-        });
+        await twitterClient.accountsAndUsers.accountUpdateProfileBanner({ banner: base64Banner });
     }
 }
 
 async function deleteFiles(files) {
     try {
         files.forEach((file) => {
-            if (file.input.includes(".png")) {
+            if (file.input.includes(".png") && !file.input.includes("thumbnail")) {
                 fs.unlinkSync(file.input);
             }
         });
@@ -166,12 +161,15 @@ async function getFollowers() {
         saveImageAndData(followers).then((image_data) => {
             youtubeThumbnail().then(() => {
                 image_data.push({
-                    input: 'thumbnail.png',
+                    input: 'banner/thumbnail.png',
                     top: 200,
                     left: 1100,
                 });
                 drawImage(image_data).then(() => {
-                    uploadBanner(image_data);
+                    console.log(image_data);
+                    uploadBanner().then(() => {
+                        deleteFiles(image_data);
+                    });
                 });
             });
         })
@@ -181,10 +179,7 @@ async function getFollowers() {
     });
 }
 
-
-app.listen(port, () => {
+getFollowers();
+setInterval(() => {
     getFollowers();
-    setInterval(() => {
-        getFollowers();
-    }, 60000);
-});
+}, 50000);
