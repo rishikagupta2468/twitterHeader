@@ -186,10 +186,6 @@ async function getFollowers() {
 }
 app.get('/', (req, res) => {
     getFollowers();
-    setInterval(() => {
-        getFollowers();
-    }, 50000);
-    res.send('twitter header');
 });
 
 app.listen(port, () => {
