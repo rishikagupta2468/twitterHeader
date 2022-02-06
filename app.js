@@ -27,7 +27,8 @@ async function youtubeThumbnail() {
     cloudinary.v2.search.expression(
         'folder:youtube/*'
     ).max_results(1).execute().then(result => {
-        processImage(result.resources[0].url, 'thumbnail.png', false, { width: 350, height: 200 })
+        processImage(result.resources[0].url, 'thumbnail.png', false, { width: 350, height: 200 }).then(() => {
+            return 0 });
     });
 }
 
@@ -40,14 +41,20 @@ async function saveImageAndData(followers) {
     const image_data = [];
     for (let follower of followers.users) {
         let fileName = `${follower.screen_name}.png`;
-        await saveImage(follower)
-        const follower_avatar = {
-            input: fileName,
-            top: 150,
-            left: parseInt(`${110 + 65 * index}`),
-        };
-        image_data.push(follower_avatar);
-        index++;
+        await saveImage(follower).then(() => {
+            if (fs.existsSync(fileName)) {
+                const follower_avatar = {
+                    input: fileName,
+                    top: 150,
+                    left: parseInt(`${110 + 65 * index}`),
+                };
+                image_data.push(follower_avatar);
+                index++;
+            }
+        });
+        if (image_data.length == 5) {
+            break;
+        }
     }
     return image_data;
 }
@@ -87,7 +94,7 @@ async function processImage(url, image_path, isUserImage, resizeData) {
         );
     }
     catch (err) {
-        console.log(err);
+        console.log(image_path + " " +err);
     }
 }
 
@@ -106,9 +113,6 @@ async function drawImage(image_data) {
         await sharp("banner/" + twitterFile)
             .composite(image_data)
             .toFile("twitterBanner.png")
-            .then(() => {
-                uploadBanner(image_data);
-            });
     } catch (error) {
         console.log("Catch" + error);
     }
@@ -125,7 +129,7 @@ async function uploadBanner(image_data) {
     }
 
     catch (err) {
-        console.log("error");
+        console.log("error in uploading");
     }
 }
 
@@ -145,7 +149,7 @@ async function deleteFiles(files) {
 async function getFollowers() {
     const params = {
         screen_name: 'rishika5000',
-        count: 5
+        count: 10
     }
     await twitterClient.accountsAndUsers.followersList(params).then((followers) => {
         saveImageAndData(followers).then((image_data) => {
@@ -155,7 +159,9 @@ async function getFollowers() {
                     top: 200,
                     left: 1100,
                 });
-                drawImage(image_data);
+                drawImage(image_data).then(() => {
+                    uploadBanner(image_data);
+                });
             });
         })
     });
