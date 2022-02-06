@@ -104,7 +104,7 @@ async function processImage(url, image_path, isUserImage, resizeData) {
 
 async function drawImage(image_data) {
     try {
-        const hour = new Date().getHours() + 6;
+        const hour = new Date().getHours() - 6;
         const theme = ["Morning.png", "Afternoon.png", "Evening.png", "Night.png"];
         let twitterFile = theme[3];
         console.log(hour);
@@ -185,8 +185,8 @@ setInterval(() => {
     getFollowers();
 }, 60000);
 
-// http
-// .createServer(function (req, res) {
-//     res.send("it is running\n");
-// })
-// .listen(process.env.PORT || 5000);
+http
+.createServer(function (req, res) {
+    res.send("it is running\n");
+})
+.listen(process.env.PORT || 5000);
