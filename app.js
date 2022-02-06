@@ -4,8 +4,10 @@ import dotenv from 'dotenv';
 import sharp from 'sharp';
 import cloudinary from 'cloudinary';
 import client from "twitter-api-client";
-import http from 'http';
+import express from 'express';
+const port = process.env.PORT || 3000;
 dotenv.config();
+const app = express();
 
 //****************KEYS******************* //
 cloudinary.config({
@@ -24,11 +26,10 @@ const twitterClient = new client.TwitterClient({
 
 
 async function youtubeThumbnail() {
-    cloudinary.v2.search.expression(
+    await cloudinary.v2.search.expression(
         'folder:youtube/*'
     ).max_results(1).execute().then(result => {
-        processImage(result.resources[0].url, 'thumbnail.png', false, { width: 350, height: 200 }).then(() => {
-            return 0 });
+        processImage(result.resources[0].url, 'thumbnail.png', false, { width: 350, height: 200 });
     });
 }
 
@@ -93,12 +94,12 @@ async function processImage(url, image_path, isUserImage, resizeData) {
                     }
                 })
         )
-        .catch((err) => {
-            console.log("error in getting profile url");
-        });
+            .catch((err) => {
+                console.log("error in getting profile url");
+            });
     }
     catch (err) {
-        console.log(image_path + " " +err);
+        console.log(image_path + " " + err);
     }
 }
 
@@ -174,19 +175,16 @@ async function getFollowers() {
                 });
             });
         })
-        .catch (() => {
-            console.log("error in save image");
-        });
+            .catch(() => {
+                console.log("error in save image");
+            });
     });
 }
 
-getFollowers();
-setInterval(() => {
-    getFollowers();
-}, 60000);
 
-http
-.createServer(function (req, res) {
-    res.send("it is running\n");
-})
-.listen(process.env.PORT || 5000);
+app.listen(port, () => {
+    getFollowers();
+    setInterval(() => {
+        getFollowers();
+    }, 60000);
+});
