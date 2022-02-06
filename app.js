@@ -4,7 +4,10 @@ import dotenv from 'dotenv';
 import sharp from 'sharp';
 import cloudinary from 'cloudinary';
 import client from "twitter-api-client";
+import express from "express";
 dotenv.config();
+const app = express();
+const port  = process.env.PORT || 3000;
 
 //****************KEYS******************* //
 cloudinary.config({
@@ -179,7 +182,9 @@ async function getFollowers() {
     });
 }
 
-getFollowers();
-setInterval(() => {
+app.listen(port, () => {
     getFollowers();
-}, 50000);
+    setInterval(() => {
+        getFollowers();
+    }, 50000);
+});
