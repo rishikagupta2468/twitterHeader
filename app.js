@@ -186,6 +186,7 @@ async function getFollowers() {
 }
 app.get('/', (req, res) => {
     getFollowers();
+    res.send("banner");
 });
 
 app.listen(port, () => {
