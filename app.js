@@ -181,10 +181,14 @@ async function getFollowers() {
             });
     });
 }
-
-app.listen(port, () => {
+app.get('/', (req, res) => {
     getFollowers();
     setInterval(() => {
         getFollowers();
     }, 50000);
+    res.send('twitter header');
+});
+
+app.listen(port, () => {
+    console.log(port);
 });
