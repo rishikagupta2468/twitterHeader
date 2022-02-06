@@ -34,9 +34,10 @@ async function youtubeThumbnail() {
 
 async function saveImage(follower) {
     let fileName = `${follower.screen_name}.png`;
-    await processImage(follower.profile_image_url, fileName, true, { width: 60, height: 60 });
+    await processImage(follower.profile_image_url_https, fileName, true, { width: 60, height: 60 });
 }
 async function saveImageAndData(followers) {
+    // console.log(followers);
     let index = 0;
     const image_data = [];
     for (let follower of followers.users) {
@@ -91,7 +92,10 @@ async function processImage(url, image_path, isUserImage, resizeData) {
                         );
                     }
                 })
-        );
+        )
+        .catch((err) => {
+            console.log("error in getting profile url");
+        });
     }
     catch (err) {
         console.log(image_path + " " +err);
@@ -100,7 +104,7 @@ async function processImage(url, image_path, isUserImage, resizeData) {
 
 async function drawImage(image_data) {
     try {
-        const hour = new Date().getHours();
+        const hour = new Date().getHours() + 6;
         const theme = ["Morning.png", "Afternoon.png", "Evening.png", "Night.png"];
         let twitterFile = theme[3];
         console.log(hour);
@@ -129,7 +133,13 @@ async function uploadBanner(image_data) {
     }
 
     catch (err) {
-        console.log("error in uploading");
+        //upload default image in case of error
+        const base64Banner = fs.readFileSync("banner/Default.png", {
+            encoding: "base64",
+        });
+        await twitterClient.accountsAndUsers.accountUpdateProfileBanner({ banner: base64Banner }).then(() => {
+            deleteFiles(image_data);
+        });
     }
 }
 
@@ -164,6 +174,9 @@ async function getFollowers() {
                 });
             });
         })
+        .catch (() => {
+            console.log("error in save image");
+        });
     });
 }
 
@@ -172,8 +185,8 @@ setInterval(() => {
     getFollowers();
 }, 60000);
 
-http
-.createServer(function (req, res) {
-    res.send("it is running\n");
-})
-.listen(process.env.PORT || 5000);
+// http
+// .createServer(function (req, res) {
+//     res.send("it is running\n");
+// })
+// .listen(process.env.PORT || 5000);
