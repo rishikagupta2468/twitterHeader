@@ -109,7 +109,7 @@ async function processImage(url, image_path, isUserImage, resizeData) {
 
 async function drawImage(image_data) {
     try {
-        const hour = new Date().getHours() + 6;
+        const hour = new Date().getHours();
         const theme = ["Morning.png", "Afternoon.png", "Evening.png", "Night.png"];
         let twitterFile = theme[0];
         console.log(hour);
@@ -137,11 +137,7 @@ async function uploadBanner() {
     }
 
     catch (err) {
-        //upload default image in case of error
-        const base64Banner = fs.readFileSync("banner/Default.png", {
-            encoding: "base64",
-        });
-        await twitterClient.accountsAndUsers.accountUpdateProfileBanner({ banner: base64Banner });
+        console.log("error in uploading banner " + err);
     }
 }
 
