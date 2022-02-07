@@ -29,7 +29,7 @@ async function youtubeThumbnail() {
     const result = await cloudinary.v2.search.expression(
         'folder:youtube/*'
     ).max_results(1).execute()
-    await processImage(result.resources[0].url, 'thumbnail.png', false, { width: 350, height: 200 });
+    await processImage(result.resources[0].url, 'thumbnail.png', false, { width: 387, height: 218 });
 
 }
 
@@ -48,8 +48,8 @@ async function saveImageAndData(followers) {
                 if (fs.existsSync(fileName)) {
                     const follower_avatar = {
                         input: fileName,
-                        top: 150,
-                        left: parseInt(`${110 + 65 * index}`),
+                        top: 152,
+                        left: parseInt(`${73 + 85.5 * index}`),
                     };
                     image_data.push(follower_avatar);
                     index++;
@@ -109,14 +109,20 @@ async function processImage(url, image_path, isUserImage, resizeData) {
 
 async function drawImage(image_data) {
     try {
-        const hour = new Date().getHours();
-        const theme = ["Morning.png", "Afternoon.png", "Evening.png", "Night.png"];
-        let twitterFile = theme[0];
-        console.log(hour);
-        if (hour < 12 && hour > 6) twitterFile = theme[0];
-        else if (hour < 18 && hour >= 12) twitterFile = theme[1];
-        else if (hour < 22 && hour >= 18) twitterFile = theme[2];
-        else if (hour <= 24 || hour <= 6) twitterFile = theme[3];
+        let twitterFile = "background.png";
+
+
+        // Logic for changing theme based on time
+
+        // const hour = new Date().getHours();
+        // const theme = ["Morning.png", "Afternoon.png", "Evening.png", "Night.png"];
+        // twitterFile = theme[0];
+        // console.log(hour);
+        // if (hour < 12 && hour > 6) twitterFile = theme[0];
+        // else if (hour < 18 && hour >= 12) twitterFile = theme[1];
+        // else if (hour < 22 && hour >= 18) twitterFile = theme[2];
+        // else if (hour <= 24 || hour <= 6) twitterFile = theme[3];
+
         new Promise((resolve) => {
             resolve(sharp("banner/" + twitterFile)
                 .composite(image_data)
@@ -164,8 +170,8 @@ async function getFollowers() {
             youtubeThumbnail().then(() => {
                 image_data.push({
                     input: 'thumbnail.png',
-                    top: 200,
-                    left: 1100,
+                    top: 215,
+                    left: 965,
                 });
                 drawImage(image_data).then(() => {
                     console.log(image_data);
