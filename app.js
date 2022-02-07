@@ -109,7 +109,7 @@ async function processImage(url, image_path, isUserImage, resizeData) {
 
 async function drawImage(image_data) {
     try {
-        const hour = new Date().getHours();
+        const hour = new Date().getHours() + 5;
         const theme = ["Morning.png", "Afternoon.png", "Evening.png", "Night.png"];
         let twitterFile = theme[0];
         console.log(hour);
