@@ -113,10 +113,10 @@ async function drawImage(image_data) {
         const theme = ["Morning.png", "Afternoon.png", "Evening.png", "Night.png"];
         let twitterFile = theme[0];
         console.log(hour);
-        if (hour < 12 && hour > 6) twitterFile = theme[0];
-        else if (hour < 18 && hour >= 12) twitterFile = theme[1];
-        else if (hour < 22 && hour >= 18) twitterFile = theme[2];
-        else if (hour <= 24 || hour <= 6) twitterFile = theme[3];
+        if (hour < 12 && hour >= 6) twitterFile = theme[0];
+        else if (hour < 17 && hour >= 12) twitterFile = theme[1];
+        else if (hour < 21 && hour >= 17) twitterFile = theme[2];
+        else if (hour <= 24 || hour > 6) twitterFile = theme[3];
         new Promise((resolve) => {
             resolve(sharp("banner/" + twitterFile)
                 .composite(image_data)
